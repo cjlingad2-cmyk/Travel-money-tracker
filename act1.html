@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>World Trip Budget Planner</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #121a2e;
+        --panel-2: #1a2643;
+        --primary: #6ee7b7;
+        --primary-2: #22c55e;
+        --accent: #7dd3fc;
+        --warning: #fbbf24;
+        --danger: #f87171;
+        --text: #e5eefb;
+        --muted: #9bb0d1;
+        --border: rgba(255,255,255,0.08);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #050b16 0%, #111827 100%);
+        color: var(--text);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 30px 20px 60px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 22px;
+      }
+
+      .brand {
+        font-size: 1.7rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      .pill {
+        background: rgba(110, 231, 183, 0.12);
+        color: var(--primary);
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(110, 231, 183, 0.2);
+        font-size: 0.85rem;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        gap: 20px;
+        margin-bottom: 22px;
+      }
+
+      .panel {
+        background: rgba(18, 26, 46, 0.9);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+      }
+
+      .hero-copy {
+        padding: 28px;
+      }
+
+      h1 {
+        margin: 0 0 14px;
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        line-height: 1.1;
+      }
+
+      .hero-copy p {
+        margin: 0 0 20px;
+        color: var(--muted);
+        line-height: 1.6;
+        max-width: 620px;
+      }
+
+      .cta-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+      }
+
+      .btn:hover { transform: translateY(-1px); }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-2));
+        color: #062b1d;
+      }
+
+      .btn-secondary {
+        background: rgba(125, 211, 252, 0.12);
+        color: var(--accent);
+        border: 1px solid rgba(125, 211, 252, 0.15);
+      }
+
+      .budget-card {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: linear-gradient(180deg, rgba(18,26,46,0.95), rgba(13,18,31,0.9));
+      }
+
+      .mini-label {
+        color: var(--muted);
+        font-size: 0.83rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .big-budget {
+        font-size: 2.6rem;
+        font-weight: 800;
+        margin: 10px 0 18px;
+      }
+
+      .progress-wrap {
+        margin-top: 18px;
+      }
+
+      .progress-meta {
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted);
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+      }
+
+      .progress-bar {
+        height: 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.07);
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 0;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        transition: width 0.35s ease;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0,1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+      }
+
+      .stat-card {
+        padding: 22px 18px;
+      }
+
+      .stat-value {
+        font-size: 1.7rem;
+        font-weight: 800;
+        margin-top: 12px;
+        margin-bottom: 6px;
+      }
+
+      .stat-card:nth-child(1) .stat-value { color: var(--primary); }
+      .stat-card:nth-child(2) .stat-value { color: var(--accent); }
+      .stat-card:nth-child(3) .stat-value { color: var(--warning); }
+      .stat-card:nth-child(4) .stat-value { color: var(--danger); }
+
+      .content-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 22px;
+      }
+
+      .inputs {
+        padding: 24px;
+      }
+
+      h2 {
+        margin-top: 0;
+        margin-bottom: 18px;
+        font-size: 1.4rem;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 16px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .field.full {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        color: var(--muted);
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      input, select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.03);
+        color: var(--text);
+        font-size: 1rem;
+      }
+
+      input:focus, select:focus {
+        outline: 2px solid rgba(110, 231, 183, 0.4);
+        border-color: rgba(110, 231, 183, 0.35);
+      }
+
+      .expense-form {
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+      }
+
+      .side-panel {
+        padding: 24px;
+      }
+
+      .currency-box {
+        background: rgba(125, 211, 252, 0.04);
+        border: 1px solid rgba(125, 211, 252, 0.15);
+        border-radius: 14px;
+        padding: 18px;
+      }
+
+      .currency-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .currency-row strong {
+        color: var(--primary);
+      }
+
+      .list-box {
+        margin-top: 18px;
+      }
+
+      .expense-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .expense-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+      }
+
+      .expense-main {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .expense-name {
+        font-weight: 700;
+      }
+
+      .expense-meta {
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+
+      .expense-amount {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+      }
+
+      .delete-btn {
+        border: none;
+        background: rgba(248, 113, 113, 0.12);
+        color: var(--danger);
+        padding: 6px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .empty-state {
+        color: var(--muted);
+        background: rgba(255,255,255,0.02);
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        padding: 22px;
+        text-align: center;
+      }
+
+      @media (max-width: 900px) {
+        .hero, .content-grid, .stats { grid-template-columns: 1fr; }
+        .form-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="topbar">
+        <div class="brand">TravelMoney Planner</div>
+        <div class="pill">Budget & Finance Tracker</div>
+      </header>
+
+      <section class="hero">
+        <div class="panel hero-copy">
+          <h1>Plan your money before you move abroad.</h1>
+          <p>
+            Track your trip budget, estimate your country costs, and stay in control of your money
+            before flying overseas. This planner helps you prepare for flights, housing, food,
+            transport, and emergency savings.
+          </p>
+          <div class="cta-row">
+            <button class="btn btn-primary" type="button" id="focusForm">Add spending</button>
+            <button class="btn btn-secondary" type="button" id="resetData">Reset plan</button>
+          </div>
+        </div>
+
+        <aside class="panel budget-card">
+          <div class="mini-label">Trip budget</div>
+          <div class="big-budget" id="budgetTotal">$0</div>
+          <div class="mini-label">Remaining after costs</div>
+          <div class="big-budget" id="remainingBudget" style="font-size: 2rem; margin-top: 6px;">$0</div>
+          <div class="progress-wrap">
+            <div class="progress-meta">
+              <span>Used</span>
+              <span id="spentPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="budgetProgress"></div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="stats">
+        <div class="panel stat-card">
+          <div class="mini-label">Planned spend</div>
+          <div class="stat-value" id="plannedSpend">$0</div>
+          <div class="mini-label">Expenses added</div>
+        </div>
+
+        <div class="panel stat-card">
+          <div class="mini-label">Daily allowance</div>
+          <div class="stat-value" id="dailyAllowance">$0</div>
+          <div class="mini-label">Per day</div>
+        </div>
+
+        <div class="panel stat-card">
+          <div class="mini-label">Emergency fund</div>
+          <div class="stat-value" id="emergencyFund">$0</div>
+          <div class="mini-label">Ready backup</div>
+        </div>
+
+        <div class="panel stat-card">
+          <div class="mini-label">Country rate</div>
+          <div class="stat-value" id="currencyRate">1.00</div>
+          <div class="mini-label">Local / home</div>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <div class="panel inputs">
+          <h2>Trip setup</h2>
+          <div class="form-grid" id="tripForm">
+            <div class="field">
+              <label for="destination">Destination country</label>
+              <input id="destination" type="text" placeholder="Japan, Canada, Germany..." />
+            </div>
+
+            <div class="field">
+              <label for="tripLength">Trip length (days)</label>
+              <input id="tripLength" type="number" min="1" value="30" />
+            </div>
+
+            <div class="field">
+              <label for="homeCurrency">Home currency</label>
+              <select id="homeCurrency">
+                <option value="PHP">PHP</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="JPY">JPY</option>
+                <option value="AUD">AUD</option>
+                <option value="CAD">CAD</option>
+                <option value="SGD">SGD</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="localCurrency">Local currency</label>
+              <select id="localCurrency">
+                <option value="JPY">JPY</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="AUD">AUD</option>
+                <option value="CAD">CAD</option>
+                <option value="SGD">SGD</option>
+              </select>
+            </div>
+
+            <div class="field full">
+              <label for="budgetInput">Total budget</label>
+              <input id="budgetInput" type="number" min="0" step="50" value="3200" />
+            </div>
+
+            <div class="field full expense-form">
+              <h2>Add expense</h2>
+            </div>
+
+            <div class="field">
+              <label for="expenseName">Expense name</label>
+              <input id="expenseName" type="text" placeholder="Accommodation" />
+            </div>
+
+            <div class="field">
+              <label for="expenseCategory">Category</label>
+              <select id="expenseCategory">
+                <option value="Flight">Flight</option>
+                <option value="Accommodation">Accommodation</option>
+                <option value="Food">Food</option>
+                <option value="Transport">Transport</option>
+                <option value="Insurance">Insurance</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Emergency">Emergency</option>
+              </select>
+            </div>
+
+            <div class="field full">
+              <label for="expenseAmount">Amount</label>
+              <input id="expenseAmount" type="number" min="0" step="10" placeholder="500" />
+            </div>
+          </div>
+
+          <div class="cta-row" style="margin-top: 18px;">
+            <button class="btn btn-primary" type="button" id="addExpenseBtn">Save expense</button>
+          </div>
+        </div>
+
+        <aside class="panel side-panel">
+          <h2>Travel snapshot</h2>
+          <div class="currency-box">
+            <div class="mini-label">Exchange value</div>
+            <div class="currency-row">
+              <span>1 home</span>
+              <strong id="exchangeRateValue">1.00 local</strong>
+            </div>
+            <div class="currency-row">
+              <span>Budget in local</span>
+              <strong id="budgetLocalValue">0</strong>
+            </div>
+            <div class="currency-row">
+              <span>Daily budget</span>
+              <strong id="dailyBudgetLocalValue">0</strong>
+            </div>
+          </div>
+
+          <div class="list-box">
+            <h2>Expense list</h2>
+            <ul class="expense-list" id="expenseList"></ul>
+          </div>
+          
+        </aside>
+      </section>
+    </div>
+    <footer style="margin: 18px auto 0; font-size: 0.8rem; color: var(--muted); text-align: center; width: fit-content;">
+    <p>Christian Josh Lingad - CS301</p>
+</footer>
+          </footer>
+
+    <script>
+      const rates = {
+        PHP: 1,
+        USD: 58.5,
+        EUR: 63.4,
+        GBP: 74.0,
+        JPY: 0.38,
+        AUD: 38.8,
+        CAD: 43.2,
+        SGD: 43.1
+      };
+
+      const defaultState = {
+        destination: 'Japan',
+        tripLength: 30,
+        homeCurrency: 'PHP',
+        localCurrency: 'JPY',
+        budget: 3200,
+        expenses: [
+          { id: 1, name: 'Flight', category: 'Flight', amount: 850 },
+          { id: 2, name: 'Apartment rent', category: 'Accommodation', amount: 600 },
+          { id: 3, name: 'Food & daily needs', category: 'Food', amount: 320 }
+        ]
+      };
+
+      const state = loadState();
+
+      const destinationInput = document.getElementById('destination');
+      const tripLengthInput = document.getElementById('tripLength');
+      const homeCurrencyInput = document.getElementById('homeCurrency');
+      const localCurrencyInput = document.getElementById('localCurrency');
+      const budgetInput = document.getElementById('budgetInput');
+      const expenseNameInput = document.getElementById('expenseName');
+      const expenseCategoryInput = document.getElementById('expenseCategory');
+      const expenseAmountInput = document.getElementById('expenseAmount');
+
+      function loadState() {
+        const saved = localStorage.getItem('travelBudgetPlanner');
+        return saved ? JSON.parse(saved) : structuredClone(defaultState);
+      }
+
+      function saveState() {
+        localStorage.setItem('travelBudgetPlanner', JSON.stringify(state));
+      }
+
+      function formatCurrency(amount, currency) {
+        const displayCurrency = currency === 'USD' ? 'PHP' : currency;
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: displayCurrency,
+          maximumFractionDigits: 0
+        }).format(amount);
+      }
+
+      function getExchangeRate() {
+        const baseValue = rates[state.homeCurrency] || 1;
+        const localValue = rates[state.localCurrency] || 1;
+        return localValue / baseValue;
+      }
+
+      function updateStateFromInputs() {
+        state.destination = destinationInput.value.trim() || 'Your destination';
+        state.tripLength = Number(tripLengthInput.value) || 1;
+        state.homeCurrency = homeCurrencyInput.value;
+        state.localCurrency = localCurrencyInput.value;
+        state.budget = Number(budgetInput.value) || 0;
+        saveState();
+        render();
+      }
+
+      function applyDefaults() {
+        destinationInput.value = state.destination;
+        tripLengthInput.value = state.tripLength;
+        homeCurrencyInput.value = state.homeCurrency;
+        localCurrencyInput.value = state.localCurrency;
+        budgetInput.value = state.budget;
+      }
+
+      function getTotalExpenses() {
+        return state.expenses.reduce((total, item) => total + Number(item.amount || 0), 0);
+      }
+
+      function getRemainingBudget() {
+        return state.budget - getTotalExpenses();
+      }
+
+      function getDailyAllowance() {
+        return state.budget / Math.max(state.tripLength, 1);
+      }
+
+      function getEmergencyFund() {
+        return state.budget * 0.15;
+      }
+
+      function renderSummary() {
+        const totalExpenses = getTotalExpenses();
+        const remaining = getRemainingBudget();
+        const dailyAllowance = getDailyAllowance();
+        const emergency = getEmergencyFund();
+        const spentPercent = state.budget > 0 ? (totalExpenses / state.budget) * 100 : 0;
+        const exchangeRate = getExchangeRate();
+
+        document.getElementById('budgetTotal').textContent = formatCurrency(state.budget, state.homeCurrency);
+        document.getElementById('remainingBudget').textContent = formatCurrency(remaining, state.homeCurrency);
+        document.getElementById('plannedSpend').textContent = formatCurrency(totalExpenses, state.homeCurrency);
+        document.getElementById('dailyAllowance').textContent = formatCurrency(dailyAllowance, state.homeCurrency);
+        document.getElementById('emergencyFund').textContent = formatCurrency(emergency, state.homeCurrency);
+        document.getElementById('currencyRate').textContent = exchangeRate.toFixed(2);
+        document.getElementById('spentPercent').textContent = `${Math.min(spentPercent, 100).toFixed(0)}%`;
+        document.getElementById('budgetProgress').style.width = `${Math.min(spentPercent, 100)}%`;
+
+        const localBudget = state.budget * exchangeRate;
+        const localDaily = dailyAllowance * exchangeRate;
+
+        document.getElementById('exchangeRateValue').textContent = `${exchangeRate.toFixed(2)} ${state.localCurrency}`;
+        document.getElementById('budgetLocalValue').textContent = formatCurrency(localBudget, state.localCurrency);
+        document.getElementById('dailyBudgetLocalValue').textContent = formatCurrency(localDaily, state.localCurrency);
+      }
+
+      function renderExpenses() {
+        const list = document.getElementById('expenseList');
+        list.innerHTML = '';
+
+        if (state.expenses.length === 0) {
+          list.innerHTML = '<li class="empty-state">No expenses have been added yet.</li>';
+          return;
+        }
+
+        state.expenses.forEach((item) => {
+          const li = document.createElement('li');
+          li.className = 'expense-item';
+
+          li.innerHTML = `
+            <div class="expense-main">
+              <span class="expense-name">${item.name}</span>
+              <span class="expense-meta">${item.category}</span>
+            </div>
+            <div class="expense-amount">
+              <span>${formatCurrency(item.amount, state.homeCurrency)}</span>
+              <button class="delete-btn" data-id="${item.id}" type="button">Delete</button>
+            </div>
+          `;
+
+          list.appendChild(li);
+        });
+
+        list.querySelectorAll('.delete-btn').forEach((button) => {
+          button.addEventListener('click', (event) => {
+            const id = Number(event.target.dataset.id);
+            state.expenses = state.expenses.filter((expense) => expense.id !== id);
+            saveState();
+            render();
+          });
+        });
+      }
+
+      function render() {
+        renderSummary();
+        renderExpenses();
+      }
+
+      function addExpense() {
+        const name = expenseNameInput.value.trim();
+        const category = expenseCategoryInput.value;
+        const amount = Number(expenseAmountInput.value);
+
+        if (!name || !amount || amount <= 0) {
+          alert('Please enter a valid expense name and amount.');
+          return;
+        }
+
+        state.expenses.push({
+          id: Date.now(),
+          name,
+          category,
+          amount
+        });
+
+        expenseNameInput.value = '';
+        expenseAmountInput.value = '';
+        saveState();
+        render();
+      }
+
+      function resetPlan() {
+        const confirmReset = window.confirm('Reset the whole trip budget plan?');
+        if (!confirmReset) return;
+
+        localStorage.removeItem('travelBudgetPlanner');
+        Object.assign(state, structuredClone(defaultState));
+        applyDefaults();
+        render();
+      }
+
+      destinationInput.addEventListener('input', updateStateFromInputs);
+      tripLengthInput.addEventListener('input', updateStateFromInputs);
+      homeCurrencyInput.addEventListener('change', updateStateFromInputs);
+      localCurrencyInput.addEventListener('change', updateStateFromInputs);
+      budgetInput.addEventListener('input', updateStateFromInputs);
+      document.getElementById('addExpenseBtn').addEventListener('click', addExpense);
+      document.getElementById('focusForm').addEventListener('click', () => expenseNameInput.focus());
+      document.getElementById('resetData').addEventListener('click', resetPlan);
+
+      applyDefaults();
+      render();
+    </script>
+  </body>
+</html>
